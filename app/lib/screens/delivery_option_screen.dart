@@ -35,45 +35,72 @@ class DeliveryOptionScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const Text(
               'Como você deseja receber seu pedido?',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-            
+
             // Opção Retirada
             Card(
               child: ListTile(
                 leading: const Icon(Icons.store, color: Color(0xFF87CEEB)),
                 title: const Text('Retirada no Local'),
-                subtitle: Text('Total: R\$ ${totalAmount.toStringAsFixed(2)}'),
+                subtitle: Text(
+                  'Total: R\$ ${totalAmount.toStringAsFixed(2)} (Travessa N, nº 11222 Jd Boa Vista)',
+                ),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  Navigator.pop(context);
-                  onPickup();
+                  _showConfirmationDialog(context, 'Retirada', onPickup);
                 },
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Opção Entrega
             Card(
               child: ListTile(
                 leading: const Icon(Icons.motorcycle, color: Color(0xFF87CEEB)),
                 title: const Text('Entrega'),
-                subtitle: Text('Total: R\$ ${(totalAmount + deliveryFee).toStringAsFixed(2)} (+ R\$ ${deliveryFee.toStringAsFixed(2)} taxa)'),
+                subtitle: Text(
+                  'Total: R\$ ${(totalAmount + deliveryFee).toStringAsFixed(2)} (+ R\$ ${deliveryFee.toStringAsFixed(2)} taxa)',
+                ),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  Navigator.pop(context);
-                  onDelivery();
+                  _showConfirmationDialog(context, 'Entrega', onDelivery);
                 },
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showConfirmationDialog(
+    BuildContext context,
+    String deliveryType,
+    VoidCallback onConfirm,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Pedido Confirmado!'),
+          content: Text(
+            'Seu pedido foi confirmado com sucesso!\nTipo: $deliveryType',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Fecha o diálogo
+                Navigator.of(context).pop(); // Fecha a tela atual
+                onConfirm();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

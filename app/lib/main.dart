@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => OrderService()),
       ],
       child: MaterialApp(
-        title: 'Hangar do Hamburger',
+        title: 'Hangar do Hamburguer',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.lightBlue,

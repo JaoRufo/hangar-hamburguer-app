@@ -146,7 +146,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     const Text(
                       'Pedido Atual',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       '#${order.id}',
@@ -155,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _buildOrderStatus(order.status),
+                _buildOrderStatus(order.status, order),
                 if (order.estimatedTime != null) ...[
                   const SizedBox(height: 8),
                   Text(
@@ -166,7 +169,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 16),
                 Text(
                   'Total: R\$ ${order.total.toStringAsFixed(2)}',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -176,7 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildOrderStatus(OrderStatus status) {
+  Widget _buildOrderStatus(OrderStatus status, [Order? order]) {
     String statusText;
     Color statusColor;
     IconData statusIcon;
@@ -203,9 +209,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         statusIcon = Icons.restaurant;
         break;
       case OrderStatus.outForDelivery:
-        statusText = 'Saiu para entrega';
-        statusColor = Colors.purple;
-        statusIcon = Icons.delivery_dining;
+        // Verificar se é retirada ou entrega
+        if (order?.deliveryType == 'Retirada') {
+          statusText = 'Pedido pronto para retirada';
+          statusColor = Colors.green;
+          statusIcon = Icons.store;
+        } else {
+          statusText = 'Saiu para entrega';
+          statusColor = Colors.purple;
+          statusIcon = Icons.delivery_dining;
+        }
         break;
       case OrderStatus.delivered:
         statusText = 'Entregue';
@@ -264,30 +277,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            ...orderService.orderHistory.map((order) => Card(
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: const Color(0xFF87CEEB),
-                  child: Text(
-                    '#${order.id.substring(0, 2)}',
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
+            ...orderService.orderHistory
+                .map(
+                  (order) => Card(
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: const Color(0xFF87CEEB),
+                        child: Text(
+                          '#${order.id.substring(0, 2)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      title: Text('Pedido #${order.id}'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('R\$ ${order.total.toStringAsFixed(2)}'),
+                          _buildOrderStatus(order.status, order),
+                        ],
+                      ),
+                      trailing: Text(
+                        '${order.createdAt.day}/${order.createdAt.month}',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      onTap: () => _showOrderDetails(context, order),
+                    ),
                   ),
-                ),
-                title: Text('Pedido #${order.id}'),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('R\$ ${order.total.toStringAsFixed(2)}'),
-                    _buildOrderStatus(order.status),
-                  ],
-                ),
-                trailing: Text(
-                  '${order.createdAt.day}/${order.createdAt.month}',
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                onTap: () => _showOrderDetails(context, order),
-              ),
-            )).toList(),
+                )
+                .toList(),
           ],
         );
       },
@@ -345,7 +365,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 phoneController.text,
                 addressController.text,
               );
-              
+
               if (success && context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -447,26 +467,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Data: ${order.createdAt.day}/${order.createdAt.month}/${order.createdAt.year}'),
+              Text(
+                'Data: ${order.createdAt.day}/${order.createdAt.month}/${order.createdAt.year}',
+              ),
               const SizedBox(height: 8),
-              _buildOrderStatus(order.status),
+              _buildOrderStatus(order.status, order),
               const SizedBox(height: 16),
-              const Text('Itens:', style: TextStyle(fontWeight: FontWeight.bold)),
-              ...order.items.map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(child: Text('${item.quantity}x ${item.product.name}')),
-                    Text('R\$ ${item.totalPrice.toStringAsFixed(2)}'),
-                  ],
-                ),
-              )).toList(),
+              const Text(
+                'Itens:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              ...order.items
+                  .map(
+                    (item) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${item.quantity}x ${item.product.name}',
+                            ),
+                          ),
+                          Text('R\$ ${item.totalPrice.toStringAsFixed(2)}'),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
               const Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Total:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Text(
                     'R\$ ${order.total.toStringAsFixed(2)}',
                     style: const TextStyle(fontWeight: FontWeight.bold),

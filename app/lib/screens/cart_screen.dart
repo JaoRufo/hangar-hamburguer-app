@@ -199,16 +199,23 @@ class CartScreen extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => DeliveryOptionScreen(
           totalAmount: cartService.totalPrice,
+          // Corrigido: VoidCallback sem parâmetro
           onPickup: () => _finalizeOrder(context, cartService, 'Retirada', 0.0),
-          onDelivery: () => _finalizeOrder(context, cartService, 'Entrega', 6.0),
+          onDelivery: () =>
+              _finalizeOrder(context, cartService, 'Entrega', 6.0),
         ),
       ),
     );
   }
 
-  void _finalizeOrder(BuildContext context, CartService cartService, String deliveryType, double deliveryFee) async {
+  void _finalizeOrder(
+    BuildContext context,
+    CartService cartService,
+    String deliveryType,
+    double deliveryFee,
+  ) async {
     final orderService = Provider.of<OrderService>(context, listen: false);
-    
+
     final order = Order(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       items: cartService.items,
@@ -219,10 +226,12 @@ class CartScreen extends StatelessWidget {
       status: OrderStatus.pending,
       createdAt: DateTime.now(),
     );
-    
+
     await orderService.createOrder(order);
     cartService.clear();
-    
+
+    if (!context.mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Pedido realizado com sucesso! Tipo: $deliveryType'),

@@ -10,14 +10,14 @@ class OrderService extends ChangeNotifier {
 
   Order? get currentOrder => _currentOrder;
   List<Order> get orderHistory => _orderHistory;
-  
+
   // Carregar pedidos salvos localmente
   Future<void> loadOrders() async {
     if (_isLoaded) return;
-    
+
     final prefs = await SharedPreferences.getInstance();
     final ordersJson = prefs.getStringList('orders') ?? [];
-    
+
     _orderHistory.clear();
     for (final orderJson in ordersJson) {
       try {
@@ -27,7 +27,7 @@ class OrderService extends ChangeNotifier {
         // Ignorar pedidos com erro de parsing
       }
     }
-    
+
     // Carregar pedido atual se existir
     final currentOrderJson = prefs.getString('current_order');
     if (currentOrderJson != null) {
@@ -37,20 +37,25 @@ class OrderService extends ChangeNotifier {
         // Ignorar se houver erro
       }
     }
-    
+
     _isLoaded = true;
     notifyListeners();
   }
-  
+
   // Salvar pedidos localmente
   Future<void> _saveOrders() async {
     final prefs = await SharedPreferences.getInstance();
-    final ordersJson = _orderHistory.map((order) => json.encode(order.toJson())).toList();
+    final ordersJson = _orderHistory
+        .map((order) => json.encode(order.toJson()))
+        .toList();
     await prefs.setStringList('orders', ordersJson);
-    
+
     // Salvar pedido atual
     if (_currentOrder != null) {
-      await prefs.setString('current_order', json.encode(_currentOrder!.toJson()));
+      await prefs.setString(
+        'current_order',
+        json.encode(_currentOrder!.toJson()),
+      );
     } else {
       await prefs.remove('current_order');
     }
@@ -59,17 +64,17 @@ class OrderService extends ChangeNotifier {
   Future<bool> createOrder(Order order) async {
     // TODO: Integrar com backend no futuro
     // final response = await api.createOrder(order);
-    
+
     await Future.delayed(const Duration(seconds: 1));
-    
+
     _currentOrder = order;
     _orderHistory.add(order);
     await _saveOrders();
     notifyListeners();
-    
+
     // Simular progresso do pedido
     _simulateOrderProgress();
-    
+
     return true;
   }
 
@@ -88,11 +93,12 @@ class OrderService extends ChangeNotifier {
     await Future.delayed(const Duration(seconds: 2));
     _updateOrderStatus(OrderStatus.preparing, estimatedTime: '30-40 min');
 
-    // Pedido saiu para entrega (se for entrega)
-    if (_currentOrder!.deliveryType == 'Entrega') {
-      await Future.delayed(const Duration(seconds: 30));
-      _updateOrderStatus(OrderStatus.outForDelivery);
-    }
+    // Aguarda 50 minutos para finalizar preparo
+    await Future.delayed(const Duration(minutes: 1));
+
+    // Se for entrega, muda para "Saiu para entrega"
+    // Se for retirada, muda para "Pronto para retirada" (usando o mesmo enum)
+    _updateOrderStatus(OrderStatus.outForDelivery);
   }
 
   void _updateOrderStatus(OrderStatus status, {String? estimatedTime}) async {
@@ -111,7 +117,9 @@ class OrderService extends ChangeNotifier {
     );
 
     // Atualizar no histórico
-    final index = _orderHistory.indexWhere((order) => order.id == _currentOrder!.id);
+    final index = _orderHistory.indexWhere(
+      (order) => order.id == _currentOrder!.id,
+    );
     if (index != -1) {
       _orderHistory[index] = _currentOrder!;
     }

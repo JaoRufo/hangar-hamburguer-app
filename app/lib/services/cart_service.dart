@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/order.dart';
+import 'package:hangar_do_hamburguer/models/cart_item.dart';
+
 import '../models/product.dart';
 
 class CartService extends ChangeNotifier {
@@ -9,18 +10,26 @@ class CartService extends ChangeNotifier {
   int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
   double get totalPrice => _items.fold(0, (sum, item) => sum + item.totalPrice);
 
-  void addItem(Product product, {int quantity = 1, List<String> observations = const []}) {
-    final existingIndex = _items.indexWhere((item) => item.product.id == product.id);
-    
+  void addItem(
+    Product product, {
+    int quantity = 1,
+    List<String> observations = const [],
+  }) {
+    final existingIndex = _items.indexWhere(
+      (item) => item.product.id == product.id,
+    );
+
     if (existingIndex >= 0) {
       _items[existingIndex].quantity += quantity;
     } else {
-      _items.add(CartItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        product: product,
-        quantity: quantity,
-        observations: observations,
-      ));
+      _items.add(
+        CartItem(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          product: product,
+          quantity: quantity,
+          observations: observations,
+        ),
+      );
     }
     notifyListeners();
   }

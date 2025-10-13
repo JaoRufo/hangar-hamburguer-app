@@ -1,4 +1,4 @@
-import 'product.dart';
+import 'cart_item.dart';
 
 class Order {
   final String id;
@@ -65,38 +65,4 @@ enum OrderStatus {
   outForDelivery,
   delivered,
   cancelled,
-}
-
-class CartItem {
-  final String id;
-  final Product product;
-  int quantity;
-  final List<String> observations;
-
-  CartItem({
-    required this.id,
-    required this.product,
-    required this.quantity,
-    this.observations = const [],
-  });
-
-  double get totalPrice => product.price * quantity;
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'product': product.toJson(),
-      'quantity': quantity,
-      'observations': observations,
-    };
-  }
-
-  factory CartItem.fromJson(Map<String, dynamic> json) {
-    return CartItem(
-      id: json['id'],
-      product: Product.fromJson(json['product']),
-      quantity: json['quantity'],
-      observations: List<String>.from(json['observations'] ?? []),
-    );
-  }
 }
