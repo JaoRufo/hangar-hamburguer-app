@@ -24,7 +24,7 @@ class _MenuScreenState extends State<MenuScreen> {
       description:
           'Pão com gergilin, 2x Hambúrguer, Cheddar, Bacon e Molho especial',
       price: 28.00,
-      image: 'assets/images/jumbo_747.jpg', // Espaço para imagem futura
+      image: 'assets/images/jumbo_747.jpeg', // Espaço para imagem futura
       category: 'Hamburgers',
       ingredients: [
         'Pão com gergilin',
@@ -40,7 +40,7 @@ class _MenuScreenState extends State<MenuScreen> {
       description:
           'Pão com gergilin, Hambúrguer, Cheddar, Bacon, Alface, Tomate, Cebola e Molho especial',
       price: 26.00,
-      image: 'assets/images/super_tucano.jpg', // Espaço para imagem futura
+      image: 'assets/images/super_tucano.jpeg', // Espaço para imagem futura
       category: 'Hamburgers',
       ingredients: [
         'Pão com gergilin',
@@ -59,7 +59,7 @@ class _MenuScreenState extends State<MenuScreen> {
       description:
           'Pão com gergilin, Hambúrguer de frango, Bacon, Mussarela, Alface, Tomate e Molho especial',
       price: 22.00,
-      image: 'assets/images/planador.jpg', // Espaço para imagem futura
+      image: 'assets/images/planador.jpeg', // Espaço para imagem futura
       category: 'Hamburgers',
       ingredients: [
         'Pão com gergilin',
@@ -76,7 +76,7 @@ class _MenuScreenState extends State<MenuScreen> {
       name: 'Sukhoi SU-59',
       description: 'Pão com gergilin, Hambúrguer, Cheddar e Molho especial',
       price: 18.00,
-      image: 'assets/images/sukhoi_su59.jpg', // Espaço para imagem futura
+      image: 'assets/images/sukhoi_su59.jpeg', // Espaço para imagem futura
       category: 'Hamburgers',
       ingredients: [
         'Pão com gergilin',
@@ -91,7 +91,7 @@ class _MenuScreenState extends State<MenuScreen> {
       description:
           'Pão com gergilin, 2x Hambúrguer de frango, Bacon, Catupiry e Molho especial',
       price: 28.00,
-      image: 'assets/images/antnov_225.jpg', // Espaço para imagem futura
+      image: 'assets/images/antnov_225.jpeg', // Espaço para imagem futura
       category: 'Hamburgers',
       ingredients: [
         'Pão com gergilin',
@@ -107,7 +107,7 @@ class _MenuScreenState extends State<MenuScreen> {
       description:
           'Pão com gergilin, Hambúrguer de frango, Cream Cheese e Molho especial',
       price: 18.00,
-      image: 'assets/images/ultra_leve.jpg', // Espaço para imagem futura
+      image: 'assets/images/ultra_leve.jpeg', // Espaço para imagem futura
       category: 'Hamburgers',
       ingredients: [
         'Pão com gergilin',
@@ -122,7 +122,7 @@ class _MenuScreenState extends State<MenuScreen> {
       name: 'Refrigerantes 2 litros',
       description: 'Coca-cola, Pepsi e Guaraná',
       price: 12.00,
-      image: 'assets/images/refrigerantes_2l.jpg', // Espaço para imagem futura
+      image: 'assets/images/refrigerantes_2l.png', // Espaço para imagem futura
       category: 'Bebidas',
       ingredients: ['Coca-cola, Pepsi ou Guaraná 2L'],
     ),
@@ -131,7 +131,7 @@ class _MenuScreenState extends State<MenuScreen> {
       name: 'Água sem gás',
       description: 'Água sem gás 500ml',
       price: 3.00,
-      image: 'assets/images/agua_sem_gas.jpg', // Espaço para imagem futura
+      image: 'assets/images/agua_sem_gas.png', // Espaço para imagem futura
       category: 'Bebidas',
       ingredients: ['Água mineral 500ml'],
     ),
@@ -140,7 +140,7 @@ class _MenuScreenState extends State<MenuScreen> {
       name: 'Água com gás',
       description: 'Água com gás 500ml',
       price: 3.50,
-      image: 'assets/images/agua_com_gas.jpg', // Espaço para imagem futura
+      image: 'assets/images/agua_com_gas.png', // Espaço para imagem futura
       category: 'Bebidas',
       ingredients: ['Água com gás 500ml'],
     ),
