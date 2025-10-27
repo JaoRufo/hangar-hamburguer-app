@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'screens/splash_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/home_screen.dart';
 import 'services/auth_service.dart';
 import 'services/cart_service.dart';
 import 'services/order_service.dart';
@@ -15,15 +18,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Configurar cores da barra de status e navegação
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFF87CEEB),
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFF87CEEB),
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-    );
+    // Configurar cores da barra de status e navegação apenas no mobile
+    if (!kIsWeb) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF87CEEB),
+          statusBarIconBrightness: Brightness.light,
+          systemNavigationBarColor: Color(0xFF87CEEB),
+          systemNavigationBarIconBrightness: Brightness.light,
+        ),
+      );
+    }
 
     return MultiProvider(
       providers: [
@@ -76,7 +81,12 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        home: const SplashScreen(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const SplashScreen(),
+          '/login': (context) => const LoginScreen(),
+          '/home': (context) => const HomeScreen(),
+        },
       ),
     );
   }

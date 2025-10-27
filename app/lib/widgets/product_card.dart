@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final Product product;
   final VoidCallback onTap;
   final VoidCallback onAddToCart;
@@ -14,16 +14,29 @@ class ProductCard extends StatelessWidget {
   });
 
   @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        transform: Matrix4.identity()..scale(_isHovered ? 1.05 : 1.0),
+        child: Card(
+          elevation: _isHovered ? 8 : 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
@@ -36,7 +49,7 @@ class ProductCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                   child: Image.asset(
-                    product.image,
+                    widget.product.image,
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
@@ -63,7 +76,7 @@ class ProductCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    product.name,
+                    widget.product.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -73,7 +86,7 @@ class ProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    product.description,
+                    widget.product.description,
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 11,
@@ -86,7 +99,7 @@ class ProductCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'R\$ ${product.price.toStringAsFixed(2)}',
+                        'R\$ ${widget.product.price.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF87CEEB),
@@ -94,7 +107,7 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap: onAddToCart,
+                        onTap: widget.onAddToCart,
                         child: Container(
                           padding: const EdgeInsets.all(3),
                           decoration: BoxDecoration(
@@ -114,6 +127,8 @@ class ProductCard extends StatelessWidget {
               ),
             ),
           ],
+            ),
+          ),
         ),
       ),
     );

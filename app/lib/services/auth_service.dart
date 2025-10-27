@@ -11,7 +11,7 @@ class AuthService extends ChangeNotifier {
   User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _currentUser != null;
-  
+
   // Carregar usuários registrados
   Future<void> _loadRegisteredUsers() async {
     final prefs = await SharedPreferences.getInstance();
@@ -32,11 +32,13 @@ class AuthService extends ChangeNotifier {
       }
     }
   }
-  
+
   // Salvar usuários registrados
   Future<void> _saveRegisteredUsers() async {
     final prefs = await SharedPreferences.getInstance();
-    final usersJson = _registeredUsers.map((user) => json.encode(user)).toList();
+    final usersJson = _registeredUsers
+        .map((user) => json.encode(user))
+        .toList();
     await prefs.setStringList('registered_users', usersJson);
   }
 
@@ -84,7 +86,13 @@ class AuthService extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> register(String name, String email, String password, String phone, String address) async {
+  Future<bool> register(
+    String name,
+    String email,
+    String password,
+    String phone,
+    String address,
+  ) async {
     _isLoading = true;
     notifyListeners();
 
@@ -108,7 +116,7 @@ class AuthService extends ChangeNotifier {
       'phone': phone,
       'address': address,
     });
-    
+
     await _saveRegisteredUsers();
 
     _currentUser = User(
@@ -143,9 +151,14 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateProfile(String name, String email, String phone, String address) async {
+  Future<bool> updateProfile(
+    String name,
+    String email,
+    String phone,
+    String address,
+  ) async {
     if (_currentUser == null) return false;
-    
+
     _isLoading = true;
     notifyListeners();
 

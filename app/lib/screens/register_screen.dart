@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
-import 'home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -20,10 +19,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final success = await authService.register(
+      _nameController.text.trim(),
+      _emailController.text.trim(),
+      _passwordController.text,
+      _phoneController.text.trim(),
+      _addressController.text.trim(),
+    );
+
+    if (mounted) {
+      if (success) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao criar conta. Email pode já estar em uso.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cadastro'),
+        title: const Text('Criar Conta'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -33,35 +68,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                const Text(
-                  'Criar Conta',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF87CEEB),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Preencha os dados para se cadastrar',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 32),
                 TextFormField(
                   controller: _nameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Nome completo',
-                    prefixIcon: const Icon(Icons.person),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, insira seu nome';
+                      return 'Digite seu nome';
                     }
                     return null;
                   },
@@ -70,19 +86,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Email',
-                    prefixIcon: const Icon(Icons.email),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    prefixIcon: Icon(Icons.email),
+                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, insira seu email';
+                      return 'Digite seu email';
                     }
                     if (!value.contains('@')) {
-                      return 'Por favor, insira um email válido';
+                      return 'Digite um email válido';
                     }
                     return null;
                   },
@@ -95,23 +109,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     labelText: 'Senha',
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                      ),
                       onPressed: () {
                         setState(() {
                           _obscurePassword = !_obscurePassword;
                         });
                       },
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, insira uma senha';
+                      return 'Digite sua senha';
                     }
                     if (value.length < 6) {
-                      return 'A senha deve ter pelo menos 6 caracteres';
+                      return 'Senha deve ter pelo menos 6 caracteres';
                     }
                     return null;
                   },
@@ -120,16 +134,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Telefone',
-                    prefixIcon: const Icon(Icons.phone),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    prefixIcon: Icon(Icons.phone),
+                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, insira seu telefone';
+                      return 'Digite seu telefone';
                     }
                     return null;
                   },
@@ -138,21 +150,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _addressController,
                   maxLines: 2,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Endereço',
-                    prefixIcon: const Icon(Icons.location_on),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    prefixIcon: Icon(Icons.location_on),
+                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, insira seu endereço';
+                      return 'Digite seu endereço';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
                 Consumer<AuthService>(
                   builder: (context, authService, child) {
                     return SizedBox(
@@ -162,7 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: authService.isLoading ? null : _register,
                         child: authService.isLoading
                             ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('Cadastrar', style: TextStyle(fontSize: 16)),
+                            : const Text('Criar Conta'),
                       ),
                     );
                   },
@@ -180,42 +190,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
-  }
-
-  void _register() async {
-    if (_formKey.currentState!.validate()) {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final success = await authService.register(
-        _nameController.text,
-        _emailController.text,
-        _passwordController.text,
-        _phoneController.text,
-        _addressController.text,
-      );
-
-      if (success && mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email já cadastrado'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _phoneController.dispose();
-    _addressController.dispose();
-    super.dispose();
   }
 }

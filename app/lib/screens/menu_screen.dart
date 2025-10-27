@@ -223,39 +223,53 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
           ),
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              itemCount: _filteredProducts.length,
-              itemBuilder: (context, index) {
-                final product = _filteredProducts[index];
-                return ProductCard(
-                  product: product,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ProductDetailScreen(product: product),
-                      ),
-                    );
-                  },
-                  onAddToCart: () {
-                    Provider.of<CartService>(
-                      context,
-                      listen: false,
-                    ).addItem(product);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${product.name} adicionado ao carrinho'),
-                        duration: const Duration(seconds: 2),
-                        backgroundColor: const Color(0xFF87CEEB),
-                      ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Responsividade: ajustar número de colunas baseado na largura
+                int crossAxisCount = 2;
+                if (constraints.maxWidth > 1200) {
+                  crossAxisCount = 4;
+                } else if (constraints.maxWidth > 800) {
+                  crossAxisCount = 3;
+                }
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    childAspectRatio: 0.75,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  itemCount: _filteredProducts.length,
+                  itemBuilder: (context, index) {
+                    final product = _filteredProducts[index];
+                    return ProductCard(
+                      product: product,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProductDetailScreen(product: product),
+                          ),
+                        );
+                      },
+                      onAddToCart: () {
+                        Provider.of<CartService>(
+                          context,
+                          listen: false,
+                        ).addItem(product);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '${product.name} adicionado ao carrinho',
+                            ),
+                            duration: const Duration(seconds: 2),
+                            backgroundColor: const Color(0xFF87CEEB),
+                          ),
+                        );
+                      },
                     );
                   },
                 );

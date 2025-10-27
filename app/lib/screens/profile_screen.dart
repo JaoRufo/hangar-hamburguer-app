@@ -277,37 +277,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            ...orderService.orderHistory
-                .map(
-                  (order) => Card(
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: const Color(0xFF87CEEB),
-                        child: Text(
-                          '#${order.id.substring(0, 2)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                      title: Text('Pedido #${order.id}'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('R\$ ${order.total.toStringAsFixed(2)}'),
-                          _buildOrderStatus(order.status, order),
-                        ],
-                      ),
-                      trailing: Text(
-                        '${order.createdAt.day}/${order.createdAt.month}',
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                      onTap: () => _showOrderDetails(context, order),
+            ...orderService.orderHistory.map(
+              (order) => Card(
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: const Color(0xFF87CEEB),
+                    child: Text(
+                      '#${order.id.substring(0, 2)}',
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),
-                )
-                .toList(),
+                  title: Text('Pedido #${order.id}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('R\$ ${order.total.toStringAsFixed(2)}'),
+                      _buildOrderStatus(order.status, order),
+                    ],
+                  ),
+                  trailing: Text(
+                    '${order.createdAt.day}/${order.createdAt.month}',
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                  onTap: () => _showOrderDetails(context, order),
+                ),
+              ),
+            ),
           ],
         );
       },
@@ -477,24 +472,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Itens:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              ...order.items
-                  .map(
-                    (item) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '${item.quantity}x ${item.product.name}',
-                            ),
-                          ),
-                          Text('R\$ ${item.totalPrice.toStringAsFixed(2)}'),
-                        ],
+              ...order.items.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text('${item.quantity}x ${item.product.name}'),
                       ),
-                    ),
-                  )
-                  .toList(),
+                      Text('R\$ ${item.totalPrice.toStringAsFixed(2)}'),
+                    ],
+                  ),
+                ),
+              ),
               const Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

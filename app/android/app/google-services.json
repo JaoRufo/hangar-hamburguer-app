@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "613117820027",
+    "project_id": "hangar-hamburguer-teste",
+    "storage_bucket": "hangar-hamburguer-teste.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613117820027:android:78cc04c6a302757ba1b6de",
+        "android_client_info": {
+          "package_name": "br.com.hangardohamburguer.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDREAJmGr147Af-cRJmtyKNzFy2LHD07xk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

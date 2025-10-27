@@ -1,12 +1,13 @@
 name: hangar_do_hamburguer
 description: "Hangar do Hamburguer - App de delivery de hambúrgueres"
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
   sdk: ^3.9.2
 
 dependencies:
+  dio: ^5.9.0
   flutter:
     sdk: flutter
   provider: ^6.0.5

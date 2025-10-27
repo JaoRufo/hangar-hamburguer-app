@@ -6,11 +6,11 @@ class DeliveryOptionScreen extends StatelessWidget {
   final VoidCallback onDelivery;
 
   const DeliveryOptionScreen({
-    Key? key,
+    super.key,
     required this.totalAmount,
     required this.onPickup,
     required this.onDelivery,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
