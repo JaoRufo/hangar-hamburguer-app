@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hangar_do_hamburguer/controllers/auth.controller.dart';
 import 'package:provider/provider.dart';
+
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+
 import 'services/auth_service.dart';
 import 'services/cart_service.dart';
 import 'services/order_service.dart';
@@ -32,7 +35,24 @@ class MyApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
+        // ✅ AuthService agora carrega usuário salvo no SharedPreferences
+        ChangeNotifierProvider(
+          create: (_) {
+            final authService = AuthService();
+            // Carregar dados salvos após a inicialização
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              authService.loadUserFromStorage();
+            });
+            return authService;
+          },
+        ),
+
+        // ✅ AuthController depende do AuthService
+        ChangeNotifierProxyProvider<AuthService, AuthController>(
+          create: (_) => AuthController(AuthService()),
+          update: (context, authService, _) => AuthController(authService),
+        ),
+
         ChangeNotifierProvider(create: (_) => CartService()),
         ChangeNotifierProvider(create: (_) => OrderService()),
       ],

@@ -1,88 +1,47 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 
 class AuthService extends ChangeNotifier {
-  User? _currentUser;
-  bool _isLoading = false;
-  final List<Map<String, String>> _registeredUsers = [];
+  static const String baseUrl = "http://localhost:3333/auth";
 
-  User? get currentUser => _currentUser;
-  bool get isLoading => _isLoading;
-  bool get isLoggedIn => _currentUser != null;
+  User? currentUser;
+  String? _token;
 
-  // Carregar usuários registrados
-  Future<void> _loadRegisteredUsers() async {
-    final prefs = await SharedPreferences.getInstance();
-    final usersJson = prefs.getStringList('registered_users') ?? [];
-    _registeredUsers.clear();
-    for (final userJson in usersJson) {
-      try {
-        final userData = json.decode(userJson) as Map<String, dynamic>;
-        _registeredUsers.add({
-          'email': userData['email'],
-          'password': userData['password'],
-          'name': userData['name'],
-          'phone': userData['phone'],
-          'address': userData['address'],
-        });
-      } catch (e) {
-        // Ignorar usuários com erro
-      }
-    }
-  }
-
-  // Salvar usuários registrados
-  Future<void> _saveRegisteredUsers() async {
-    final prefs = await SharedPreferences.getInstance();
-    final usersJson = _registeredUsers
-        .map((user) => json.encode(user))
-        .toList();
-    await prefs.setStringList('registered_users', usersJson);
-  }
+  bool get isLoggedIn => currentUser != null;
 
   Future<bool> login(String email, String password) async {
-    _isLoading = true;
-    notifyListeners();
+    debugPrint('[AuthService] POST /auth/login');
 
-    await _loadRegisteredUsers();
-    await Future.delayed(const Duration(seconds: 1));
+    final response = await http.post(
+      Uri.parse('$baseUrl/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({"email": email, "password": password}),
+    );
 
-    // Verificar usuário admin padrão
-    if (email == 'admin@hangar.com' && password == '123456') {
-      _currentUser = User(
-        id: '1',
-        name: 'Admin',
-        email: email,
-        phone: '(11) 99999-9999',
-        address: 'Rua do Hangar, 123',
-      );
-      await _saveUserToPrefs();
-      _isLoading = false;
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      _token = data["token"];
+      currentUser = User.fromJson(data["user"]);
+
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("auth_user", jsonEncode(data["user"]));
+        await prefs.setString("auth_token", _token!);
+        debugPrint('[AuthService] ✅ Dados salvos no storage');
+      } catch (e) {
+        debugPrint('[AuthService] ❌ Erro ao salvar dados: $e');
+      }
+
       notifyListeners();
+      debugPrint('[AuthService] ✅ Login ok');
       return true;
     }
 
-    // Verificar usuários registrados
-    for (final user in _registeredUsers) {
-      if (user['email'] == email && user['password'] == password) {
-        _currentUser = User(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          name: user['name']!,
-          email: user['email']!,
-          phone: user['phone']!,
-          address: user['address']!,
-        );
-        await _saveUserToPrefs();
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      }
-    }
-
-    _isLoading = false;
-    notifyListeners();
+    debugPrint('[AuthService] ❌ Erro no login: ${response.body}');
     return false;
   }
 
@@ -93,62 +52,42 @@ class AuthService extends ChangeNotifier {
     String phone,
     String address,
   ) async {
-    _isLoading = true;
-    notifyListeners();
+    debugPrint('[AuthService] POST /auth/register');
 
-    await _loadRegisteredUsers();
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Verificar se email já existe
-    for (final user in _registeredUsers) {
-      if (user['email'] == email) {
-        _isLoading = false;
-        notifyListeners();
-        return false; // Email já cadastrado
-      }
-    }
-
-    // Adicionar novo usuário
-    _registeredUsers.add({
-      'email': email,
-      'password': password,
-      'name': name,
-      'phone': phone,
-      'address': address,
-    });
-
-    await _saveRegisteredUsers();
-
-    _currentUser = User(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: name,
-      email: email,
-      phone: phone,
-      address: address,
+    final response = await http.post(
+      Uri.parse('$baseUrl/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "name": name,
+        "email": email,
+        "password": password,
+        "phone": phone,
+        "address": address,
+      }),
     );
 
-    await _saveUserToPrefs();
-    _isLoading = false;
-    notifyListeners();
-    return true;
-  }
-
-  Future<void> logout() async {
-    _currentUser = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('user');
-    // Limpar dados do usuário (pedidos ficam salvos para quando logar novamente)
-    // TODO: No futuro, implementar logout no backend
-    notifyListeners();
-  }
-
-  Future<void> loadUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userJson = prefs.getString('user');
-    if (userJson != null) {
-      _currentUser = User.fromJson(json.decode(userJson));
+    if (response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      
+      _token = data["token"];
+      currentUser = User.fromJson(data["user"]);
+      
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("auth_user", jsonEncode(data["user"]));
+        await prefs.setString("auth_token", _token!);
+        debugPrint('[AuthService] ✅ Dados do registro salvos no storage');
+      } catch (e) {
+        debugPrint('[AuthService] ❌ Erro ao salvar dados do registro: $e');
+      }
+      
       notifyListeners();
+      debugPrint('[AuthService] ✅ Registrado com sucesso');
+      return true;
     }
+
+    debugPrint('[AuthService] ❌ Erro no registro: ${response.body}');
+    return false;
   }
 
   Future<bool> updateProfile(
@@ -157,29 +96,58 @@ class AuthService extends ChangeNotifier {
     String phone,
     String address,
   ) async {
-    if (_currentUser == null) return false;
+    debugPrint('[AuthService] PUT /auth/update');
 
-    _isLoading = true;
-    notifyListeners();
+    if (_token == null) return false;
 
-    await Future.delayed(const Duration(seconds: 1));
-
-    _currentUser = User(
-      id: _currentUser!.id,
+    currentUser = User(
+      id: currentUser!.id,
       name: name,
       email: email,
       phone: phone,
       address: address,
     );
 
-    await _saveUserToPrefs();
-    _isLoading = false;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("auth_user", jsonEncode(currentUser!.toJson()));
+
     notifyListeners();
     return true;
   }
 
-  Future<void> _saveUserToPrefs() async {
+  Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user', json.encode(_currentUser!.toJson()));
+    await prefs.remove("auth_user");
+    await prefs.remove("auth_token");
+    _token = null;
+    currentUser = null;
+    notifyListeners();
+  }
+
+  Future<void> loadUserFromStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userData = prefs.getString("auth_user");
+      final token = prefs.getString("auth_token");
+      
+      debugPrint('[AuthService] Carregando dados salvos...');
+      debugPrint('[AuthService] User data: $userData');
+      debugPrint('[AuthService] Token: ${token != null ? 'existe' : 'null'}');
+
+      if (userData != null && token != null) {
+        currentUser = User.fromJson(jsonDecode(userData));
+        _token = token;
+        debugPrint('[AuthService] ✅ Usuário carregado: ${currentUser?.name}');
+        notifyListeners();
+      } else {
+        debugPrint('[AuthService] ❌ Nenhum dado salvo encontrado');
+      }
+    } catch (e) {
+      debugPrint('[AuthService] ❌ Erro ao carregar dados: $e');
+    }
+  }
+
+  Future<void> loadUser() async {
+    await loadUserFromStorage();
   }
 }

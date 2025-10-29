@@ -22,8 +22,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   _checkAuth() async {
     final authService = Provider.of<AuthService>(context, listen: false);
+    
+    // Aguardar um pouco mais na web para o SharedPreferences carregar
+    await Future.delayed(const Duration(milliseconds: 500));
     await authService.loadUser();
     
+    // Aguardar mais um pouco para garantir que os dados foram carregados
     await Future.delayed(const Duration(seconds: 2));
     
     if (mounted) {
