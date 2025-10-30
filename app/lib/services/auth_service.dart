@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 
 class AuthService extends ChangeNotifier {
-  static const String baseUrl = "http://localhost:3333/auth";
+  static const String baseUrl =
+      "https://hangar-do-hamburguer-backend.onrender.com/auth";
 
   User? currentUser;
   String? _token;
@@ -68,10 +69,10 @@ class AuthService extends ChangeNotifier {
 
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
-      
+
       _token = data["token"];
       currentUser = User.fromJson(data["user"]);
-      
+
       try {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString("auth_user", jsonEncode(data["user"]));
@@ -80,7 +81,7 @@ class AuthService extends ChangeNotifier {
       } catch (e) {
         debugPrint('[AuthService] ❌ Erro ao salvar dados do registro: $e');
       }
-      
+
       notifyListeners();
       debugPrint('[AuthService] ✅ Registrado com sucesso');
       return true;
@@ -129,7 +130,7 @@ class AuthService extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final userData = prefs.getString("auth_user");
       final token = prefs.getString("auth_token");
-      
+
       debugPrint('[AuthService] Carregando dados salvos...');
       debugPrint('[AuthService] User data: $userData');
       debugPrint('[AuthService] Token: ${token != null ? 'existe' : 'null'}');
